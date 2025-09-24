@@ -56,6 +56,10 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             VITE_API_URL=${{ secrets.VITE_API_URL || vars.VITE_API_URL || '' }}
+            HTTP_PROXY=${{ secrets.BUILD_HTTP_PROXY || vars.BUILD_HTTP_PROXY || '' }}
+            HTTPS_PROXY=${{ secrets.BUILD_HTTPS_PROXY || vars.BUILD_HTTPS_PROXY || '' }}
+            ALL_PROXY=${{ secrets.BUILD_ALL_PROXY || vars.BUILD_ALL_PROXY || '' }}
+            NO_PROXY=${{ secrets.BUILD_NO_PROXY || vars.BUILD_NO_PROXY || '' }}
 
 # Notes:
 # - 默认推送到 GHCR，镜像名为 ghcr.io/<owner>/<repo>:<tag>

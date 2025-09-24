@@ -1,6 +1,16 @@
 # Stage 1: Build React Frontend
 FROM node:20-alpine AS frontend-builder
 
+# Optional proxy support for build-time network access
+ARG HTTP_PROXY
+ARG HTTPS_PROXY
+ARG ALL_PROXY
+ARG NO_PROXY
+ENV HTTP_PROXY=${HTTP_PROXY}
+ENV HTTPS_PROXY=${HTTPS_PROXY}
+ENV ALL_PROXY=${ALL_PROXY}
+ENV NO_PROXY=${NO_PROXY}
+
 # Set working directory for frontend
 WORKDIR /app/frontend
 
@@ -23,6 +33,16 @@ RUN npm run build
 
 # Stage 2: Python Backend
 FROM docker.io/langchain/langgraph-api:3.11
+
+# Optional proxy support for build-time network access
+ARG HTTP_PROXY
+ARG HTTPS_PROXY
+ARG ALL_PROXY
+ARG NO_PROXY
+ENV HTTP_PROXY=${HTTP_PROXY}
+ENV HTTPS_PROXY=${HTTPS_PROXY}
+ENV ALL_PROXY=${ALL_PROXY}
+ENV NO_PROXY=${NO_PROXY}
 
 # -- Install UV --
 # First install curl, then install UV using the standalone installer

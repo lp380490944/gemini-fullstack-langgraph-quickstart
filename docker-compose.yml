@@ -45,3 +45,10 @@ services:
       VITE_API_URL: ${VITE_API_URL}
       REDIS_URI: redis://langgraph-redis:6379
       POSTGRES_URI: postgres://postgres:postgres@langgraph-postgres:5432/postgres?sslmode=disable
+      # Optional: SOCKS5/HTTP(S) proxy to reach external services (e.g., Google Gemini)
+      # Use socks5h so DNS also goes through the proxy.
+      ALL_PROXY: ${ALL_PROXY}
+      HTTPS_PROXY: ${HTTPS_PROXY}
+      HTTP_PROXY: ${HTTP_PROXY}
+      # Do not proxy internal service names and localhost
+      NO_PROXY: ${NO_PROXY}
