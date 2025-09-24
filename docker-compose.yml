@@ -40,6 +40,8 @@ services:
     environment:
       GEMINI_API_KEY: ${GEMINI_API_KEY}
       LANGSMITH_API_KEY: ${LANGSMITH_API_KEY}
+      APP_BASIC_AUTH_USER: ${APP_BASIC_AUTH_USER}
+      APP_BASIC_AUTH_PASS: ${APP_BASIC_AUTH_PASS}
       VITE_API_URL: ${VITE_API_URL}
       REDIS_URI: redis://langgraph-redis:6379
       POSTGRES_URI: postgres://postgres:postgres@langgraph-postgres:5432/postgres?sslmode=disable
