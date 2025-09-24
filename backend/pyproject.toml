@@ -19,6 +19,7 @@ dependencies = [
     "fastapi",
     "google-genai",
     "httpx[socks]",
+    "socksio",
 ]
 
 
