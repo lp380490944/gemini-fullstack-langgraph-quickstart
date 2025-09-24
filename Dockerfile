@@ -78,6 +78,8 @@ RUN mkdir -p /api/langgraph_api /api/langgraph_runtime /api/langgraph_license /a
     touch /api/langgraph_api/__init__.py /api/langgraph_runtime/__init__.py /api/langgraph_license/__init__.py /api/langgraph_storage/__init__.py
 # Use pip for this specific package as it has poetry-based build requirements
 RUN PYTHONDONTWRITEBYTECODE=1 pip install --no-cache-dir --no-deps -e /api
+# -- Guarantee SOCKS dependencies for all components (LangSmith, google-genai, etc.) --
+RUN PYTHONDONTWRITEBYTECODE=1 UV_SYSTEM_PYTHON=1 uv pip install --system "httpx[socks]" socksio
 # -- End of ensuring user deps didn't inadvertently overwrite langgraph-api --
 # -- Removing pip from the final image (but keeping UV) --
 RUN uv pip uninstall --system pip setuptools wheel && \
