@@ -4,6 +4,11 @@ FROM node:20-alpine AS frontend-builder
 # Set working directory for frontend
 WORKDIR /app/frontend
 
+# Optional API base override for specific deployments.
+# If not provided at build time, frontend will fall back to same-origin at runtime.
+ARG VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL}
+
 # Copy frontend package files and install dependencies
 COPY frontend/package.json ./
 COPY frontend/package-lock.json ./

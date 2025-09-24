@@ -89,6 +89,10 @@ Instructions:
 - Generate a high-quality answer to the user's question based on the provided summaries and the user's question.
 - Include the sources you used from the Summaries in the answer correctly, use markdown format (e.g. [apnews](https://vertexaisearch.cloud.google.com/id/1-0)). THIS IS A MUST.
 
+Output Language Requirement:
+- Respond entirely in Simplified Chinese (简体中文)。
+- Use clear, precise technical Chinese; keep established technical terms as appropriate.
+
 User Context:
 - {research_topic}
 
