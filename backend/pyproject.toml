@@ -20,6 +20,8 @@ dependencies = [
     "google-genai",
     "httpx[socks]",
     "socksio",
+    "PySocks",
+    "requests[socks]",
 ]
 
 
