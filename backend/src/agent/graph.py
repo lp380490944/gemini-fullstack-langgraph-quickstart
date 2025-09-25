@@ -30,24 +30,17 @@ from agent.utils import (
     insert_citation_markers,
     resolve_urls,
 )
-from agent.proxy_client import get_proxy_client
+from agent.proxy_client import get_proxy_client, get_google_genai_kwargs
 
 load_dotenv()
 
 if os.getenv("GEMINI_API_KEY") is None:
     raise ValueError("GEMINI_API_KEY is not set")
 
-# Create genai client with proxy support if configured
+# Create genai client - note: google.genai.Client doesn't support custom http_client
+# Proxy should be configured via environment variables for this client
 proxy_client = get_proxy_client()
-if proxy_client:
-    # Used for Google Search API with proxy
-    genai_client = Client(
-        api_key=os.getenv("GEMINI_API_KEY"),
-        http_client=proxy_client
-    )
-else:
-    # Used for Google Search API without proxy
-    genai_client = Client(api_key=os.getenv("GEMINI_API_KEY"))
+genai_client = Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 
 # Nodes
@@ -71,15 +64,12 @@ def generate_query(state: OverallState, config: RunnableConfig) -> QueryGenerati
         state["initial_search_query_count"] = configurable.number_of_initial_queries
 
     # init Gemini 2.0 Flash with proxy support
-    llm_kwargs = {
+    llm_kwargs = get_google_genai_kwargs({
         "model": configurable.query_generator_model,
         "temperature": 1.0,
         "max_retries": 2,
         "api_key": os.getenv("GEMINI_API_KEY"),
-    }
-    # Add proxy client if configured
-    if proxy_client:
-        llm_kwargs["client"] = proxy_client
+    })
     llm = ChatGoogleGenerativeAI(**llm_kwargs)
     structured_llm = llm.with_structured_output(SearchQueryList)
 
@@ -177,15 +167,12 @@ def reflection(state: OverallState, config: RunnableConfig) -> ReflectionState:
         summaries="\n\n---\n\n".join(state["web_research_result"]),
     )
     # init Reasoning Model with proxy support
-    llm_kwargs = {
+    llm_kwargs = get_google_genai_kwargs({
         "model": reasoning_model,
         "temperature": 1.0,
         "max_retries": 2,
         "api_key": os.getenv("GEMINI_API_KEY"),
-    }
-    # Add proxy client if configured
-    if proxy_client:
-        llm_kwargs["client"] = proxy_client
+    })
     llm = ChatGoogleGenerativeAI(**llm_kwargs)
     result = llm.with_structured_output(Reflection).invoke(formatted_prompt)
 
@@ -260,15 +247,12 @@ def finalize_answer(state: OverallState, config: RunnableConfig):
     )
 
     # init Reasoning Model, default to Gemini 2.5 Flash with proxy support
-    llm_kwargs = {
+    llm_kwargs = get_google_genai_kwargs({
         "model": reasoning_model,
         "temperature": 0,
         "max_retries": 2,
         "api_key": os.getenv("GEMINI_API_KEY"),
-    }
-    # Add proxy client if configured
-    if proxy_client:
-        llm_kwargs["client"] = proxy_client
+    })
     llm = ChatGoogleGenerativeAI(**llm_kwargs)
     result = llm.invoke(formatted_prompt)
 

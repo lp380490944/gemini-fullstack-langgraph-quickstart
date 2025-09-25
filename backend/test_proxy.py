@@ -32,7 +32,7 @@ def test_direct_connection():
         return False
 
 def test_proxy_connection():
-    """Test connection through SOCKS5 proxy."""
+    """Test connection through SOCKS5 proxy using transport='rest'."""
     print("\n" + "=" * 60)
     print("Testing PROXY connection (with SOCKS5)...")
     print("=" * 60)
@@ -45,24 +45,16 @@ def test_proxy_connection():
         return False
     
     print(f"📡 Using proxy: {proxy.split('@')[-1] if '@' in proxy else proxy}")
+    print("📡 Using transport='rest' for proxy compatibility")
     
     try:
-        import httpx
         from langchain_google_genai import ChatGoogleGenerativeAI
-        
-        # Create proxy client
-        proxy_client = httpx.Client(
-            proxy=proxy,
-            timeout=httpx.Timeout(30.0),
-            verify=True,
-            follow_redirects=True
-        )
         
         llm = ChatGoogleGenerativeAI(
             model="gemini-1.5-flash",
             temperature=0,
             api_key=os.getenv("GEMINI_API_KEY"),
-            client=proxy_client
+            transport="rest"  # Use REST transport for better proxy support
         )
         
         response = llm.invoke("Say 'Hello, proxy connection works!' in exactly 5 words")
@@ -71,35 +63,30 @@ def test_proxy_connection():
         return True
     except Exception as e:
         print(f"❌ Proxy connection failed: {str(e)}")
+        if "location is not supported" in str(e).lower():
+            print("   💡 This suggests the proxy may not be working.")
+            print("      Check your SOCKS5 proxy server and credentials.")
         return False
 
 def test_google_genai_client():
-    """Test google.genai Client with proxy."""
+    """Test google.genai Client with proxy via environment variables."""
     print("\n" + "=" * 60)
-    print("Testing google.genai Client with proxy...")
+    print("Testing google.genai Client...")
     print("=" * 60)
     
     proxy = os.getenv("ALL_PROXY") or os.getenv("HTTPS_PROXY") or os.getenv("HTTP_PROXY")
     
     try:
         from google.genai import Client
-        import httpx
         
         if proxy:
-            print(f"📡 Using proxy: {proxy.split('@')[-1] if '@' in proxy else proxy}")
-            proxy_client = httpx.Client(
-                proxy=proxy,
-                timeout=httpx.Timeout(30.0),
-                verify=True,
-                follow_redirects=True
-            )
-            client = Client(
-                api_key=os.getenv("GEMINI_API_KEY"),
-                http_client=proxy_client
-            )
+            print(f"📡 Proxy configured in environment: {proxy.split('@')[-1] if '@' in proxy else proxy}")
+            print("   Note: google.genai Client uses environment proxy variables automatically")
         else:
             print("⚠️  No proxy configured, using direct connection")
-            client = Client(api_key=os.getenv("GEMINI_API_KEY"))
+        
+        # google.genai Client will automatically use proxy from environment variables
+        client = Client(api_key=os.getenv("GEMINI_API_KEY"))
         
         # Test with a simple generation
         response = client.models.generate_content(
@@ -112,6 +99,9 @@ def test_google_genai_client():
         return True
     except Exception as e:
         print(f"❌ google.genai Client connection failed: {str(e)}")
+        if "location is not supported" in str(e).lower():
+            print("   💡 This error suggests the proxy is not being used.")
+            print("      google.genai Client should use environment proxy automatically.")
         return False
 
 def check_network_connectivity():
